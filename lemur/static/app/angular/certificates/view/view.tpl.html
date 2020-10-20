@@ -23,9 +23,8 @@
           </button>
         </div>
         <div class="btn-group">
-          <button ng-click="showOnlyExpiring()" class="btn btn-info">
-            {{ onlyExpiringButton }}
-          </button>
+          <select ng-change="showOnlyExpiring()" class="form-control" ng-model="daysBeforeExpiration"
+                  ng-options="item.value as item.title for item in daysBeforeExpirationOptions"></select>
         </div>
         <!--<select class="form-control" ng-model="show" ng-options="item.value as item.title for item in fields"></select>-->
         <div class="clearfix"></div>

@@ -18,14 +18,10 @@ angular.module('lemur')
   })
 
   .controller('CertificatesViewController', function ($q, $scope, $uibModal, $stateParams, CertificateApi, CertificateService, MomentService, ngTableParams, toaster) {
-    var EXPIRES_IN_WEEKS = 5;
     $scope.filter = $stateParams;
     $scope.expiredText = ['Show Expired', 'Hide Expired'];
     $scope.expiredValue = 0;
     $scope.expiredButton = $scope.expiredText[$scope.expiredValue];
-    $scope.onlyExpiringText = [`Show Only Expiring (${EXPIRES_IN_WEEKS} weeks)`, `Hide Only Expiring (${EXPIRES_IN_WEEKS} weeks)`];
-    $scope.onlyExpiringValue = 0;
-    $scope.onlyExpiringButton = $scope.onlyExpiringText[$scope.onlyExpiringValue];
     $scope.certificateTable = new ngTableParams({
       page: 1,            // show first page
       count: 10,          // count per page
@@ -74,33 +70,34 @@ angular.module('lemur')
       });
     };
 
-    $scope.showOnlyExpiring = function () {
-      if ($scope.onlyExpiringValue === 0) {
-        $scope.onlyExpiringValue = 1;
-      }
-      else {
-        $scope.onlyExpiringValue = 0;
-      }
-      $scope.onlyExpiringButton = $scope.onlyExpiringText[$scope.onlyExpiringValue];
+    $scope.daysBeforeExpirationOptions = [
+      {title: '', value: null},
+      {title: '1 day', value: 1},
+      {title: '7 days', value: 7},
+      {title: '14 days', value: 14},
+      {title: '30 days', value: 30},
+      {title: '60 days', value: 60},
+    ];
+    $scope.daysBeforeExpiration = null;
+
+    $scope.showOnlyExpiring = function() {
       $scope.certificateTable = new ngTableParams({
         page: 1,            // show first page
         count: 10,          // count per page
         sorting: {
-          id: 'desc'     // initial sorting
+          id: 'desc',     // initial sorting
         },
         short: true,
-        filter: $scope.filter
+        filter: $scope.filter,
       }, {
-        getData: function ($defer, params) {
-
+        getData: function($defer, params) {
           $scope.temp = angular.copy(params.url());
-          $scope.temp.timeRange = $scope.onlyExpiringValue ? EXPIRES_IN_WEEKS : 0;
-          CertificateApi.getList($scope.temp)
-          .then(function (data) {
+          $scope.temp.daysBeforeExpiration = $scope.daysBeforeExpiration;
+          CertificateApi.getList($scope.temp).then(function(data) {
             params.total(data.total);
             $defer.resolve(data);
           });
-        }
+        },
       });
     };
 
